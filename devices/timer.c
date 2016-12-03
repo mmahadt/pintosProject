@@ -96,6 +96,9 @@ timer_sleep (int64_t ticks)
     //thread_yield ();
   if ( timer_elapsed (start) < ticks )
   {
+      //Disable interrupts as thread_block() must be
+      //called with interrupts turned off 
+      intr_set_level(INTR_OFF);
       thread_block();//block the current thread
   }
 }
