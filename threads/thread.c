@@ -224,7 +224,7 @@ thread_block (void)
   thread_current ()->status = THREAD_BLOCKED;
 
   //Push the blocked thread in blocked threads list
-  list_push_back( &blocked_list, &t->elem);
+  list_push_back( &blocked_list, &thread_current ()->elem);
 
   schedule ();
 }
