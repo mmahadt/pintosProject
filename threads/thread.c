@@ -222,6 +222,10 @@ thread_block (void)
   ASSERT (intr_get_level () == INTR_OFF);
 
   thread_current ()->status = THREAD_BLOCKED;
+
+  //Push the blocked thread in blocked threads list
+  list_push_back( &blocked_list, &t->elem);
+
   schedule ();
 }
 
