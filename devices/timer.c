@@ -98,7 +98,7 @@ timer_sleep (int64_t ticks)
   {
       //Update the value of sleep_until in struct thread
       //ticks-timer_elapsed (start)
-      thread_current->sleep_until = ticks - timer_elapsed (start);
+      thread_current()->sleep_until = ticks - timer_elapsed (start);
 
       //Disable interrupts as thread_block() must be
       //called with interrupts turned off
