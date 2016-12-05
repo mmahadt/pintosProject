@@ -252,6 +252,18 @@ thread_unblock (struct thread *t)
   intr_set_level (old_level);
 }
 
+/*  This function unblocks threads that have to be awaken after sleep */
+static void
+thread_unblocker(struct thread *t, void *aux UNUSED)
+{
+  int64_t start = timer_ticks ();
+
+  if(timer_elapsed(start)>t->sleep_until && t->status == THREAD_BLOCKED)
+  {
+  	thread_unblock(t);
+  }
+}
+
 /* Returns the name of the running thread. */
 const char *
 thread_name (void)
