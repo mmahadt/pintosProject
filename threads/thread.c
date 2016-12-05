@@ -11,6 +11,7 @@
 #include "threads/switch.h"
 #include "threads/synch.h"
 #include "threads/vaddr.h"
+#include "devices/timer.h"
 #ifdef USERPROG
 #include "userprog/process.h"
 #endif
@@ -103,6 +104,7 @@ thread_init (void)
   init_thread (initial_thread, "main", PRI_DEFAULT);
   initial_thread->status = THREAD_RUNNING;
   initial_thread->tid = allocate_tid ();
+  initial_thread->sleep_until = 0;
 }
 
 /* Starts preemptive thread scheduling by enabling interrupts.
@@ -249,6 +251,18 @@ thread_unblock (struct thread *t)
   list_push_back (&ready_list, &t->elem);
   t->status = THREAD_READY;
   intr_set_level (old_level);
+}
+
+/*  This function unblocks threads that have to be awaken after sleep */
+static void
+thread_unblocker(struct thread *t, void *aux UNUSED)
+{
+  int64_t start = timer_ticks ();
+
+  if(timer_elapsed(start)>t->sleep_until && t->status == THREAD_BLOCKED)
+  {
+  	thread_unblock(t);
+  }
 }
 
 /* Returns the name of the running thread. */
@@ -502,7 +516,10 @@ next_thread_to_run (void)
   if (list_empty (&ready_list))
     return idle_thread;
   else
+  {
+    thread_foreach (thread_unblocker,0);
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
+  }
 }
 
 /* Completes a thread switch by activating the new thread's page
